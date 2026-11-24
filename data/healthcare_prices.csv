@@ -1,0 +1,22 @@
+record_id,hospital_name,city,zip_code,procedure_code,procedure_name,plan,price,source_url,source_row,last_updated,is_demo
+1,DEMO Parkland Memorial Hospital,Dallas,75235,73721,MRI lower-extremity joint without contrast,Blue Choice PPO,480.0,,,,True
+2,DEMO Parkland Memorial Hospital,Dallas,75235,70551,MRI brain without contrast,Blue Choice PPO,630.0,,,,True
+3,DEMO Parkland Memorial Hospital,Dallas,75235,74176,CT abdomen and pelvis without contrast,Blue Choice PPO,390.0,,,,True
+4,DEMO Methodist Richardson,Richardson,75082,73721,MRI lower-extremity joint without contrast,Blue Choice PPO,350.0,,,,True
+5,DEMO Methodist Richardson,Richardson,75082,70551,MRI brain without contrast,Blue Choice PPO,710.0,,,,True
+6,DEMO Methodist Richardson,Richardson,75082,74176,CT abdomen and pelvis without contrast,Blue Choice PPO,440.0,,,,True
+7,DEMO Baylor Plano,Plano,75093,73721,MRI lower-extremity joint without contrast,Blue Choice PPO,560.0,,,,True
+8,DEMO Baylor Plano,Plano,75093,70551,MRI brain without contrast,Blue Choice PPO,520.0,,,,True
+9,DEMO Baylor Plano,Plano,75093,74176,CT abdomen and pelvis without contrast,Blue Choice PPO,310.0,,,,True
+10,DEMO Medical City Dallas,Dallas,75230,73721,MRI lower-extremity joint without contrast,Blue Choice PPO,510.0,,,,True
+11,DEMO Medical City Dallas,Dallas,75230,70551,MRI brain without contrast,Blue Choice PPO,590.0,,,,True
+12,DEMO Medical City Dallas,Dallas,75230,74176,CT abdomen and pelvis without contrast,Blue Choice PPO,365.0,,,,True
+13,DEMO Texas Health Plano,Plano,75093,73721,MRI lower-extremity joint without contrast,Blue Choice PPO,395.0,,,,True
+14,DEMO Texas Health Plano,Plano,75093,70551,MRI brain without contrast,Blue Choice PPO,610.0,,,,True
+15,DEMO Texas Health Plano,Plano,75093,74176,CT abdomen and pelvis without contrast,Blue Choice PPO,340.0,,,,True
+16,DEMO UT Southwestern,Dallas,75390,73721,MRI lower-extremity joint without contrast,Blue Choice PPO,465.0,,,,True
+17,DEMO UT Southwestern,Dallas,75390,70551,MRI brain without contrast,Blue Choice PPO,575.0,,,,True
+18,DEMO UT Southwestern,Dallas,75390,74176,CT abdomen and pelvis without contrast,Blue Choice PPO,355.0,,,,True
+19,DEMO Methodist Mansfield,Mansfield,76063,73721,MRI lower-extremity joint without contrast,Blue Choice PPO,420.0,,,,True
+20,DEMO Methodist Mansfield,Mansfield,76063,70551,MRI brain without contrast,Blue Choice PPO,665.0,,,,True
+21,DEMO Methodist Mansfield,Mansfield,76063,74176,CT abdomen and pelvis without contrast,Blue Choice PPO,415.0,,,,True

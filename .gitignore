@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Secrets: never commit API keys
+.env
+.streamlit/secrets.toml
+
+# Generated at runtime
+*.db
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
