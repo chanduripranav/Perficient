@@ -11,6 +11,10 @@ __pycache__/
 # Generated at runtime
 *.db
 
+# Raw hospital price files stay local (large); keep the folder placeholder
+data_engineering/raw/*
+!data_engineering/raw/.gitkeep
+
 # OS / editor
 .DS_Store
 .vscode/

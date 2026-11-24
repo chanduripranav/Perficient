@@ -167,6 +167,18 @@ tests/                  pytest suite
 .streamlit/             Theme config and secrets template
 ```
 
+Team workspace folders (by role, currently placeholders):
+
+```
+data_engineering/       raw/ (git-ignored hospital files), pipeline/, processed/
+ai/                     agent/, prompts/, retrieval/
+frontend/               UI work
+integration/            End-to-end integration
+presentation/           Slides and demo material
+```
+
+The working proof of concept lives at the repository root so `streamlit run app.py` works directly. Its parts map to the team roles: data engineering → `src/data.py`, AI → `src/ai.py` and `src/engine.py`, frontend → `app.py`.
+
 ## Claude configuration
 
 - Model: `claude-opus-5-5`, with server-side refusal fallbacks enabled.
