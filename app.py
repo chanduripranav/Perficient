@@ -3,7 +3,6 @@ import html as htmllib
 import os
 from pathlib import Path
 
-import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -67,8 +66,9 @@ html,body,[class*="css"]{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI"
 h1,h2,h3,h4{color:#0B2545;}
 h4{font-size:17px!important;}
 .label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#6B7280;}
-.hero{display:grid;grid-template-columns:1.45fr 1fr;gap:28px;align-items:center;padding:34px 38px;border-radius:14px;color:#fff;background-size:cover;background-position:center;box-shadow:0 10px 30px rgba(11,37,69,.18);}
+.hero{display:grid;grid-template-columns:1fr;gap:28px;align-items:center;padding:34px 38px;border-radius:14px;color:#fff;background-size:cover;background-position:center;box-shadow:0 10px 30px rgba(11,37,69,.18);}
 .hero .label{color:#BFDBFE;}
+.hero .team{font-size:14px;font-weight:600;color:#FFFFFF;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.22);display:inline-block;}
 .hero h1{font-size:30px;font-weight:700;line-height:1.2;margin:8px 0 10px;color:#fff;padding:0;}
 .hero p{font-size:15px;line-height:1.6;color:#E2E8F0;margin:0;max-width:600px;}
 .chips{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;}
@@ -210,15 +210,10 @@ knee_lo, knee_hi, knee_n = (float(knee["price"].min()), float(knee["price"].max(
 V = st.session_state
 
 # ----------------------------------------------------------------------------- header
-range_rows = "".join(
-    f'<div class="row"><span>{esc(SHORT[c])} (CPT {c})</span><b>${q["price"].min():,.0f} to ${q["price"].max():,.0f}</b></div>'
-    for c in PROCEDURES
-    if not (q := query_records(c, live_only=live_mode)).empty
-) or '<div class="row"><span>No verified records loaded yet</span><b>n/a</b></div>'
-
 html(f"""
 <div class="hero" style="background-image:linear-gradient(90deg,rgba(11,37,69,.95) 0%,rgba(11,37,69,.82) 45%,rgba(11,37,69,.35) 100%),url('{img("hero")}')">
 <div>
+<div class="team">Ampana Jayaram · Amer Ahmed · Pranava Chanduri</div>
 <div class="label">Perficient · Healthcare and Life Sciences</div>
 <h1>CareConnect: healthcare prices patients can understand</h1>
 <p>CareConnect turns CMS hospital price transparency files into plain-language, source-cited answers. Hospitals use it to attract
@@ -226,11 +221,6 @@ patients who compare prices, and Perficient can implement it as a reusable accel
 <div class="chips">
 <span class="chip">Prices only from published records</span><span class="chip">Every rate cites its source</span>
 </div>
-</div>
-<div class="ranges">
-<div class="label">Negotiated rate range, Dallas-Fort Worth</div>
-<div style="font-size:12px;color:#6B7280;margin:2px 0 6px">Blue Choice PPO, same procedure ({data_label})</div>
-{range_rows}
 </div>
 </div>
 """)
@@ -242,9 +232,9 @@ html(f"""
 </div>
 """)
 
-tab_value, tab_chat, tab_explore, tab_arch = st.tabs(
+tab_value, tab_chat, tab_arch = st.tabs(
     [":material/trending_up: Business case", ":material/chat: Patient assistant",
-     ":material/query_stats: Price explorer", ":material/verified_user: Architecture and trust"])
+     ":material/verified_user: Architecture and trust"])
 
 
 # ----------------------------------------------------------------------------- helpers
@@ -357,64 +347,6 @@ published hospital files and shows where every number came from.</div></div>""")
 <li>“Where did these prices come from?”</li><li>“What will I actually pay?” (safe limitation)</li>
 <li>“Guess a C-section price” (declines to make one up)</li></ol></div>""")
 
-# ----------------------------------------------------------------------------- explorer
-with tab_explore:
-    banner("hospital", "Price explorer", "Same procedure, very different prices",
-           "Compare Blue Choice PPO negotiated outpatient facility rates for one CPT code across Dallas-Fort Worth hospitals.")
-    code = st.segmented_control("Procedure", options=list(PROCEDURES), default="73721",
-                                format_func=lambda c: f"{SHORT[c]} ({c})") or "73721"
-    recs = query_records(code, live_only=live_mode)
-    if recs.empty:
-        st.info("No records for this procedure in the current data mode. Turn off 'Verified data only' or upload verified data.")
-    else:
-        lo, hi, med = recs["price"].min(), recs["price"].max(), recs["price"].median()
-        html(f"""<div class="kpis">
-<div class="kpi"><div class="label">Lowest rate</div><div class="v">${lo:,.0f}</div><div class="l">{esc(recs.iloc[0]['hospital_name'])}</div></div>
-<div class="kpi"><div class="label">Median</div><div class="v">${med:,.0f}</div><div class="l">{len(recs)} comparable facilities</div></div>
-<div class="kpi"><div class="label">Highest rate</div><div class="v">${hi:,.0f}</div><div class="l">{esc(recs.iloc[-1]['hospital_name'])}</div></div>
-<div class="kpi"><div class="label">Spread</div><div class="v">{(hi - lo) / lo * 100:.0f}%</div><div class="l">${hi - lo:,.0f} difference for the same CPT code</div></div>
-</div>""")
-        c1, c2 = st.columns([1.25, 1], gap="large")
-        with c1:
-            st.markdown(f"#### {PROCEDURES[code]}")
-            d = recs.assign(label=recs["hospital_name"].str.replace("DEMO ", "", regex=False),
-                            tier=["Lowest" if i == 0 else "Other" for i in range(len(recs))])
-            base = alt.Chart(d).encode(
-                y=alt.Y("label:N", sort=alt.EncodingSortField("price", order="ascending"), title=None,
-                        axis=alt.Axis(labelLimit=220, labelFontSize=12)),
-                x=alt.X("price:Q", title="Negotiated rate (USD)", axis=alt.Axis(format="$,.0f")),
-                tooltip=[alt.Tooltip("hospital_name:N", title="Hospital"), alt.Tooltip("city:N"),
-                         alt.Tooltip("price:Q", format="$,.0f", title="Rate"), alt.Tooltip("record_id:N", title="Record")],
-            )
-            bars = base.mark_bar(height=20).encode(
-                color=alt.Color("tier:N", scale=alt.Scale(domain=["Lowest", "Other"], range=[NAVY, "#93C5FD"]), legend=None))
-            labels = base.mark_text(align="left", dx=5, color="#111827").encode(text=alt.Text("price:Q", format="$,.0f"))
-            st.altair_chart((bars + labels).properties(height=max(220, 40 * len(d))), width="stretch")
-        with c2:
-            st.markdown("#### All hospitals and procedures")
-            allr = pd.concat([query_records(c, live_only=live_mode) for c in PROCEDURES])
-            allr = allr.assign(label=allr["hospital_name"].str.replace("DEMO ", "", regex=False),
-                               proc=allr["procedure_code"].map(SHORT))
-            heat = alt.Chart(allr).encode(x=alt.X("proc:N", title=None, axis=alt.Axis(labelAngle=0)),
-                                          y=alt.Y("label:N", title=None, axis=alt.Axis(labelLimit=200)))
-            st.altair_chart(
-                (heat.mark_rect().encode(color=alt.Color("price:Q", scale=alt.Scale(scheme="blues"), legend=None),
-                                         tooltip=["hospital_name", "proc", alt.Tooltip("price:Q", format="$,.0f")])
-                 + heat.mark_text().encode(text=alt.Text("price:Q", format="$,.0f"),
-                                           color=alt.condition(alt.datum.price > allr["price"].median(), alt.value("white"), alt.value("#111827"))))
-                .properties(height=max(220, 40 * allr["label"].nunique())),
-                width="stretch")
-        st.markdown("#### Records and sources")
-        st.dataframe(
-            recs[["record_id", "hospital_name", "city", "zip_code", "price", "plan", "source_url", "source_row", "last_updated", "is_demo"]],
-            hide_index=True, width="stretch",
-            column_config={"price": st.column_config.NumberColumn("Rate", format="$%d"),
-                           "source_url": st.column_config.LinkColumn("Official source"),
-                           "is_demo": st.column_config.CheckboxColumn("Demo"),
-                           "record_id": "Record", "hospital_name": "Hospital"})
-        if not live_mode:
-            st.caption("Demo mode: hospital labels and prices are fictional development data. Load verified CMS files before presenting real rates.")
-
 # ----------------------------------------------------------------------------- value
 with tab_value:
     banner("clinician", "Business case for hospitals", "How CareConnect pays off for a hospital",
@@ -481,16 +413,9 @@ with tab_arch:
     st.write("")
     a1, a2 = st.columns(2, gap="large")
     with a1:
-        st.markdown("#### Safeguards")
-        st.markdown("""
-- Prices are displayed from SQLite, never from model output
-- Structured retrieval: no vector database, no free-form SQL
-- Only 3 supported CPT codes; other procedures are declined
-- Negotiated rate is not out-of-pocket cost, stated in answers
-- Demo records excluded in verified mode (`is_demo = 0`)
-- No diagnosis, treatment advice or personal identifiers
-- Rules engine fallback if the API is unavailable
-""")
+        st.markdown("#### Privacy gateway")
+        html("""<div class="note"><b>Proposed: privacy gateway.</b> We propose a privacy gateway that detects and removes
+        unnecessary patient identifiers before requests reach a secure, enterprise-grade AI model.</div>""")
     with a2:
         st.markdown("#### Data contract")
         st.dataframe(pd.DataFrame({"Field": CONTRACT_COLUMNS, "Meaning": [
@@ -513,3 +438,22 @@ with tab_arch:
 <div><b>{esc(r['question'])}</b><br><span style="color:#6B7280">intent: {esc(r['intent'])}</span></div>
 <div>{esc(r['expected'])}</div><div style="color:#4B5563">{esc(r['answer'][:180])}{'…' if len(r['answer']) > 180 else ''}</div></div>"""
             for r in results) + "</div>")
+
+    # ------------------------------------------------------------- privacy gateway value
+    st.write("")
+    st.markdown("#### How the privacy gateway helps Perficient")
+    st.caption("Proposed next step. The current proof of concept does not collect patient data.")
+    html("""<div class="grid4">
+<div class="card"><div class="label">1 · Faster approvals</div><h4>Hospitals say yes faster</h4>
+<p>Hospital legal, compliance and security teams must approve any AI tool, and patient privacy (HIPAA) is their first question.
+A gateway that strips identifiers before the model sees them gives a clear answer: shorter sales cycles, fewer stalled deals.</p></div>
+<div class="card"><div class="label">2 · Bigger engagements</div><h4>Unlocks the valuable roadmap</h4>
+<p>Today CareConnect uses only public price data. Out-of-pocket estimates, appointment booking and patient-specific navigation
+need personal context, and they cannot go live safely without a privacy layer.</p></div>
+<div class="card"><div class="label">3 · Reusable asset</div><h4>Sold across every healthcare AI project</h4>
+<p>Chatbots, the AI Healthcare Concierge, call-center summaries and scheduling assistants all share this need. Built once, reused
+across clients: repeatable security, governance, integration and managed-services work.</p></div>
+<div class="card"><div class="label">4 · Trust and lower risk</div><h4>Differentiation and protection</h4>
+<p>"Privacy by design" stands out against bolt-on chatbots, and it protects Perficient too: a patient-data leak damages the
+consultancy along with its client.</p></div>
+</div>""")

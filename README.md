@@ -40,7 +40,6 @@ The variation is real. For the same knee MRI (CPT 73721), the middle half of com
 |---|---|
 | **Business case** | The business problem, what CareConnect solves, the POC scope, and what a hospital gains (with CMS and Perficient sources). |
 | **Patient assistant** | Chat where a patient asks in plain language. Claude identifies the procedure; prices are retrieved from the database and shown as ranked, source-cited cards. |
-| **Price explorer** | Lowest, median and highest rates, a ranked chart, a hospital × procedure heatmap and the source records. |
 | **Architecture and trust** | The ETL + AI architecture diagram, safeguards, the data contract and a button that runs the acceptance tests live. |
 
 ## Architecture
